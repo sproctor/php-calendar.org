@@ -12,6 +12,8 @@ github_username:  sproctor
 google_analytics: UA-7118722-1
 
 show_excerpts: true
+# How many of the newest posts the home page lists; the rest are on /posts/
+home_posts: 5
 header_pages:
   # don't show any
 

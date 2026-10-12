@@ -1,0 +1,29 @@
+---
+layout: default
+---
+{%- comment -%}
+  minima 2.5's home layout, showing only the newest posts (home_posts in _config.yml)
+  with a link to the rest.
+{%- endcomment -%}
+
+<div class="home">
+  {%- if page.title -%}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {%- endif -%}
+
+  {{ content }}
+
+  {%- if site.posts.size > 0 -%}
+    <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2>
+    {%- assign home_posts = site.home_posts | default: 5 -%}
+    {%- include post-list.html limit=home_posts -%}
+
+    <p>
+      {%- if site.posts.size > home_posts -%}
+        <a href="{{ "/posts/" | relative_url }}">All {{ site.posts.size }} posts</a> ·
+      {% endif -%}
+      <span class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></span>
+    </p>
+  {%- endif -%}
+
+</div>

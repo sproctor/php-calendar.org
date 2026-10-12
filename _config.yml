@@ -9,7 +9,7 @@ baseurl: ""
 url: "https://php-calendar.org"
 
 github_username:  sproctor
-google_analytics: UA-7118722-1
+google_analytics: G-6M9G3MBJ9R
 
 show_excerpts: true
 # How many of the newest posts the home page lists; the rest are on /posts/

@@ -10,7 +10,8 @@ baseurl: ""
 url: "https://php-calendar.org"
 
 github_username:  sproctor
-google_analytics: G-6M9G3MBJ9R
+# Cloudflare Web Analytics site token (public; it appears in every page)
+cloudflare_analytics: 0b6df3007e964117848d3cbc95346221
 
 show_excerpts: true
 # How many of the newest posts the home page lists; the rest are on /posts/

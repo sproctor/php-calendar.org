@@ -1,0 +1,15 @@
+<head>
+  {%- comment -%}
+    minima 2.5's head, with Cloudflare Web Analytics (cookieless, so no consent banner is needed)
+    instead of its Google Analytics snippet. The token is set in _config.yml.
+  {%- endcomment -%}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- seo -%}
+  <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+  {%- feed_meta -%}
+  {%- if jekyll.environment == 'production' and site.cloudflare_analytics -%}
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "{{ site.cloudflare_analytics }}"}'></script>
+  {%- endif -%}
+</head>

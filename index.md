@@ -9,10 +9,11 @@ same collaborative spirit, the source for PHP-Calendar is available under the
 open source [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html) to facilitate collaborative development.
 
 ### Download
-The latest release is **[PHP-Calendar 2.0.14](https://github.com/sproctor/php-calendar/releases/latest)**,
-a security release that everyone running 2.0 should upgrade to. It requires PHP 8.1 or later and MySQL or
-MariaDB. See the [installation guide](https://github.com/sproctor/php-calendar/wiki/Installation-Guide) to
-get started. Version 3.0 is in development.
+* [Latest release](https://github.com/sproctor/php-calendar/releases/latest)
+* [All releases](https://github.com/sproctor/php-calendar/releases)
+
+See the [installation guide](https://github.com/sproctor/php-calendar/wiki/Installation-Guide) for the
+requirements and how to install or upgrade.
 
 ### Demos
 * [Release](https://demo.php-calendar.org/) - Demo of the latest stable version (2.0)

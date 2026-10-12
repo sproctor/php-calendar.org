@@ -6,7 +6,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   emphasis on group collaboration. In that same collaborative spirit, the source for PHP-Calendar is
   available under the open source Apache 2.0 license to facilitate collaborative development.
 baseurl: ""
-url: "https://www.php-calendar.org/"
+url: "https://php-calendar.org"
 
 github_username:  sproctor
 google_analytics: UA-7118722-1

@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly update of the PHP-Calendar demos
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 UTC
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

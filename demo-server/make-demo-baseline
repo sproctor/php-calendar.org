@@ -1,0 +1,44 @@
+#!/bin/bash
+# One-time: adds the demo account and categories, then saves each database (without events) as the
+# baseline that reset-php-calendar-demos restores every night. Run as root.
+set -euo pipefail
+
+HASH=$(php -r 'echo password_hash("demo", PASSWORD_BCRYPT);')
+
+mariadb phpc_release <<SQL
+UPDATE phpc_calendars SET timezone = 'America/New_York' WHERE cid = 1;
+INSERT INTO phpc_users (username, password, admin, password_editable, timezone)
+    SELECT 'demo', '$HASH', 0, 0, 'America/New_York' FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM phpc_users WHERE username = 'demo');
+INSERT IGNORE INTO phpc_permissions (cid, uid, \`read\`, \`write\`, \`readonly\`, \`modify\`, \`admin\`)
+    SELECT 1, uid, 1, 1, 0, 1, 1 FROM phpc_users WHERE username = 'demo';
+DELETE FROM phpc_categories WHERE cid = 1;
+INSERT INTO phpc_categories (cid, gid, name, text_color, bg_color) VALUES
+    (1, NULL, 'Meetings', '#ffffff', '#2c6fbb'),
+    (1, NULL, 'Social', '#000000', '#f4c542'),
+    (1, NULL, 'Travel', '#ffffff', '#3a9a5b');
+DELETE FROM phpc_occurrences;
+DELETE FROM phpc_events;
+SQL
+
+mariadb phpc_dev <<SQL
+INSERT INTO users (username, hash, is_admin, password_is_editable, timezone, locale, is_disabled)
+    SELECT 'demo', '$HASH', 0, 0, 'America/New_York', NULL, 0 FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'demo');
+INSERT IGNORE INTO user_permissions (cid, uid, \`read\`, \`create\`, \`update\`, \`moderate\`, \`admin\`)
+    SELECT 1, uid, 1, 1, 1, 1, 1 FROM users WHERE username = 'demo';
+DELETE FROM categories WHERE cid = 1;
+INSERT INTO categories (cid, name, color, rid) VALUES
+    (1, 'Meetings', '#2c6fbb', NULL),
+    (1, 'Social', '#f4c542', NULL),
+    (1, 'Travel', '#3a9a5b', NULL);
+DELETE FROM fields;
+DELETE FROM occurrences;
+DELETE FROM events;
+SQL
+
+install -d -m 700 /var/lib/php-calendar-demo
+for db in phpc_release phpc_dev; do
+    mariadb-dump --single-transaction --skip-dump-date "$db" > "/var/lib/php-calendar-demo/$db.sql"
+done
+ls -l /var/lib/php-calendar-demo

@@ -39,3 +39,9 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+# Server scripts for the demos, not part of the site
+exclude:
+  - demo-server/
+  - Gemfile
+  - Gemfile.lock

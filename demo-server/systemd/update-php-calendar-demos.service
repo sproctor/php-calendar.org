@@ -1,0 +1,9 @@
+[Unit]
+Description=Reset and update the PHP-Calendar demos
+Wants=network-online.target
+After=network-online.target mariadb.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/reset-php-calendar-demos
+ExecStart=/usr/local/sbin/update-php-calendar-demos

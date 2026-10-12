@@ -1,0 +1,55 @@
+#!/bin/bash
+# Nightly update of the PHP-Calendar demos, run by update-php-calendar-demos.timer.
+#   dev:     /srv/phpc/dev     follows the main branch
+#   release: /srv/phpc/release follows the highest v2.0.x tag
+set -euo pipefail
+
+as_web() { setpriv --reuid=www-data --regid=www-data --init-groups env HOME=/tmp COMPOSER_HOME=/tmp/composer-www "$@"; }
+status=0
+
+update_dev() {
+    cd /srv/phpc/dev
+    local before after
+    before=$(as_web git rev-parse HEAD)
+    as_web git fetch -q --depth 1 origin main
+    after=$(as_web git rev-parse FETCH_HEAD)
+    if [ "$before" = "$after" ]; then
+        echo "dev: already at ${after:0:7}"
+        return
+    fi
+    as_web git reset -q --hard FETCH_HEAD
+    as_web composer install -q --no-dev --optimize-autoloader --no-interaction
+    as_web php bin/console doctrine:migrations:migrate -q --no-interaction --allow-no-migration
+    as_web php bin/console cache:clear -q
+    echo "dev: updated ${before:0:7} -> ${after:0:7} ($(as_web git log -1 --format=%s))"
+}
+
+update_release() {
+    cd /srv/phpc/release
+    as_web git fetch -q --depth 1 origin 'refs/tags/v2.0.*:refs/tags/v2.0.*'
+    local current latest
+    current=$(as_web git describe --tags --exact-match 2>/dev/null || echo none)
+    latest=$(as_web git tag -l 'v2.0.*' | sort -V | tail -1)
+    if [ "$current" = "$latest" ]; then
+        echo "release: already at $current"
+        return
+    fi
+    # Database upgrades in 2.0 go through install.php by hand, so only follow tags with the same schema
+    local db_version
+    db_version=$(as_web git show "$latest:install.php" | sed -nE 's/^\$phpc_db_version = ([0-9]+);/\1/p')
+    if [ "$db_version" != 2 ]; then
+        echo "release: NOT updating to $latest, it needs database version $db_version (installed: 2)" >&2
+        return 1
+    fi
+    as_web git -c advice.detachedHead=false checkout -q -f "$latest"
+    rm -f install.php
+    for po in locale/*/LC_MESSAGES/messages.po; do
+        as_web msgfmt -o "${po%.po}.mo" "$po"
+    done
+    echo "release: updated $current -> $latest"
+}
+
+update_dev || { echo "dev: update FAILED" >&2; status=1; }
+update_release || { echo "release: update FAILED" >&2; status=1; }
+systemctl reload "php$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')-fpm"
+exit $status

@@ -1,0 +1,22 @@
+#!/bin/bash
+# Nightly reset of the PHP-Calendar demos: restores each database from its baseline (admin and demo
+# accounts, calendar settings, categories) and adds fresh sample events dated around today.
+# Runs before update-php-calendar-demos, which applies any newer dev migrations afterwards.
+set -euo pipefail
+
+as_web() { setpriv --reuid=www-data --regid=www-data --init-groups env HOME=/tmp "$@"; }
+
+for which in release dev; do
+    db=phpc_$which
+    mariadb -e "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    mariadb "$db" < "/var/lib/php-calendar-demo/$db.sql"
+    if [ "$which" = dev ]; then
+        # The baseline may predate migrations the dev demo already has
+        (cd /srv/phpc/dev && as_web php bin/console doctrine:migrations:migrate -q --no-interaction --allow-no-migration 2>/dev/null)
+    fi
+    php /usr/local/lib/php-calendar-demo/seed.php "$which"
+done
+# Logins and cached pages from before the reset are no longer valid
+rm -rf /srv/phpc/dev/var/sessions/* 2>/dev/null || true
+(cd /srv/phpc/dev && as_web php bin/console cache:pool:clear --all -q 2>/dev/null) || true
+echo "reset done"

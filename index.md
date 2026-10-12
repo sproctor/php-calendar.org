@@ -12,6 +12,8 @@ open source [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html
 * [Release](https://demo.php-calendar.org/) - Demo of the latest stable version (2.0)
 * [Development](https://dev.php-calendar.org/) - Demo of the current development line. It may be broken, but it should show off some of the newest enhancements.
 
+Log in as **demo** with the password **demo** to add and edit events. The demos are reset every night.
+
 ### Documentation
 * [Installation guide](http://github.com/sproctor/php-calendar/wiki/Installation-Guide)
 * [Embedding guide](http://github.com/sproctor/php-calendar/wiki/Embedding-Guide)

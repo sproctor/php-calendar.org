@@ -1,11 +1,9 @@
 title: PHP-Calendar
 # Shown after the title in the home page's browser tab and search results
 tagline: Open source web calendar
-description: >- # this means to ignore newlines until "baseurl:"
-  PHP-Calendar is an open source web calendar. It is intended to provide a simple solution with an
-  intuitive interface. It is targeted to groups and individuals with the need to track events with an
-  emphasis on group collaboration. In that same collaborative spirit, the source for PHP-Calendar is
-  available under the open source Apache 2.0 license to facilitate collaborative development.
+description: >-
+  An open source web calendar for groups and individuals, with an emphasis on sharing events and
+  collaboration.
 baseurl: ""
 url: "https://php-calendar.org"
 
@@ -17,12 +15,13 @@ show_excerpts: true
 # How many of the newest posts the home page lists; the rest are on /posts/
 home_posts: 5
 header_pages:
-  # don't show any
+  - posts.html
 
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # Exclude from processing.
 # The following items will not be processed, by default.

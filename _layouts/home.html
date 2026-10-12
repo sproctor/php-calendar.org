@@ -3,14 +3,11 @@ layout: default
 ---
 {%- comment -%}
   minima 2.5's home layout, showing only the newest posts (home_posts in _config.yml)
-  with a link to the rest.
+  with a link to the rest. The page title is only for the browser tab and search results;
+  the header already shows the site name, so it isn't repeated as a heading.
 {%- endcomment -%}
 
 <div class="home">
-  {%- if page.title -%}
-    <h1 class="page-heading">{{ page.title }}</h1>
-  {%- endif -%}
-
   {{ content }}
 
   {%- if site.posts.size > 0 -%}

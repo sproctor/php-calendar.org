@@ -21,7 +21,9 @@ open source [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html
 If you find a bug or have an idea for a new feature, please
 [open an issue on github](http://github.com/sproctor/php-calendar/issues/new). You
 can find the [source code on github](http://github.com/sproctor/php-calendar).
-You can help by [translating on our Transifex page](http://www.transifex.com/projects/p/php-calendar/).
+You can help by [translating on Weblate](https://hosted.weblate.org/engage/php-calendar/).
+
+[![Translation status](https://hosted.weblate.org/widget/php-calendar/svg-badge.svg)](https://hosted.weblate.org/engage/php-calendar/)
 
 <form action="https://www.paypal.com/donate" method="post" target="_top">
 <input type="hidden" name="hosted_button_id" value="2N7QSB55AEEZL" />

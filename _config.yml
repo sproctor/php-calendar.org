@@ -1,5 +1,6 @@
-title: PHP Calendar
-email: sproctor@gmail.com
+title: PHP-Calendar
+# Shown after the title in the home page's browser tab and search results
+tagline: Open source web calendar
 description: >- # this means to ignore newlines until "baseurl:"
   PHP-Calendar is an open source web calendar. It is intended to provide a simple solution with an
   intuitive interface. It is targeted to groups and individuals with the need to track events with an

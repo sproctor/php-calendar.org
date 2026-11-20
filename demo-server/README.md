@@ -21,7 +21,7 @@ and https://dev.php-calendar.org (the `main` branch). This folder isn't part of 
 |---|---|
 | `/srv/phpc/release` | Shallow clone at the highest `v2.0.x` tag, configured by its `install.php` (then deleted) |
 | `/srv/phpc/dev` | Shallow clone of `main`; settings in `.env.local.php`, written before running `/setup` |
-| `/var/lib/php-calendar-demo/phpc_{release,dev}.sql` | Baseline databases that the nightly reset restores |
+| `/var/lib/php-calendar-demo/phpc_release.sql` | Baseline database that the nightly reset restores for release. Dev has none: the reset builds it with the migrations, so its schema always matches the code (`phpc_dev.sql*` there are old copies, no longer used) |
 
 ## Files
 
@@ -30,9 +30,9 @@ and https://dev.php-calendar.org (the `main` branch). This folder isn't part of 
 | `config/nginx-php-calendar.conf` | `/etc/nginx/sites-available/php-calendar` (linked from `sites-enabled`; the default site is removed). `/etc/nginx/conf.d/cloudflare-realip.conf` has a `set_real_ip_from` line for each range at https://www.cloudflare.com/ips/ and `real_ip_header CF-Connecting-IP;` |
 | `config/mariadb-60-small.cnf` | `/etc/mysql/mariadb.conf.d/60-small.cnf`, to fit MariaDB in 1 GB |
 | `update-php-calendar-demos` | `/usr/local/sbin/`: moves dev to the latest `main` (composer, migrations, cache) and release to the highest `v2.0.x` tag (skips tags that change the 2.0 database version) |
-| `reset-php-calendar-demos` | `/usr/local/sbin/`: recreates both databases from the baselines, migrates dev, and adds sample events |
-| `seed.php` | `/usr/local/lib/php-calendar-demo/seed.php`: the sample events, dated around today |
-| `make-demo-baseline` | Run once (as root) after installing both demos: adds the `demo`/`demo` account and categories, then saves the baselines |
+| `reset-php-calendar-demos` | `/usr/local/sbin/`: recreates release from its baseline and dev with the migrations, then runs `seed.php` |
+| `seed.php` | `/usr/local/lib/php-calendar-demo/seed.php`: the sample events, dated around today; for dev, also the calendar, the `admin` (password `DEV_ADMIN_PASS`) and `demo`/`demo` accounts, and the categories |
+| `make-demo-baseline` | Run once (as root) after installing the release demo: adds the `demo`/`demo` account and categories, then saves the baseline |
 | `systemd/update-php-calendar-demos.{service,timer}` | `/etc/systemd/system/`: runs the reset and then the update every night at 08:00 UTC |
 
 PHP-FPM's pool (`/etc/php/8.5/fpm/pool.d/www.conf`) uses `pm = ondemand`, `pm.max_children = 4`
@@ -40,17 +40,18 @@ and `catch_workers_output = yes`, so application errors reach `/var/log/php8.5-f
 
 ## Changing the demo data
 
-The reset restores the baselines every night, so a change made through the website (including a new
-admin password) only lasts until then. To keep one, make it and then save the baselines again:
+The reset recreates both databases every night, so a change made through the website (including a
+new admin password) only lasts until then.
 
-```sh
-for db in phpc_release phpc_dev; do
-    sudo mariadb-dump --single-transaction --skip-dump-date "$db" | sudo tee "/var/lib/php-calendar-demo/$db.sql" > /dev/null
-done
-```
+- **Dev:** edit `seed.php` (the dev admin password is `DEV_ADMIN_PASS` in `/root/php-calendar-demo.env`).
+- **Release:** make the change, then save the baseline again:
 
-Delete the events first (or run `reset-php-calendar-demos`, make the change, and delete the events)
-so the sample events aren't saved into the baseline and duplicated by the next reset.
+  ```sh
+  sudo mariadb-dump --single-transaction --skip-dump-date phpc_release | sudo tee /var/lib/php-calendar-demo/phpc_release.sql > /dev/null
+  ```
+
+  Delete the events first (or run `reset-php-calendar-demos`, make the change, and delete the events)
+  so the sample events aren't saved into the baseline and duplicated by the next reset.
 
 ## Logs
 

@@ -1,6 +1,7 @@
 #!/bin/bash
-# One-time: adds the demo account and categories, then saves each database (without events) as the
-# baseline that reset-php-calendar-demos restores every night. Run as root.
+# One-time: adds the demo account and categories to the release demo, then saves its database
+# (without events) as the baseline that reset-php-calendar-demos restores every night. Run as root.
+# The dev demo has no baseline: the reset builds it with the migrations and seed.php.
 set -euo pipefail
 
 HASH=$(php -r 'echo password_hash("demo", PASSWORD_BCRYPT);')
@@ -21,24 +22,6 @@ DELETE FROM phpc_occurrences;
 DELETE FROM phpc_events;
 SQL
 
-mariadb phpc_dev <<SQL
-INSERT INTO users (username, hash, is_admin, password_is_editable, timezone, locale, is_disabled)
-    SELECT 'demo', '$HASH', 0, 0, 'America/New_York', NULL, 0 FROM DUAL
-    WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'demo');
-INSERT IGNORE INTO user_permissions (cid, uid, \`read\`, \`create\`, \`update\`, \`moderate\`, \`admin\`)
-    SELECT 1, uid, 1, 1, 1, 1, 1 FROM users WHERE username = 'demo';
-DELETE FROM categories WHERE cid = 1;
-INSERT INTO categories (cid, name, color, rid) VALUES
-    (1, 'Meetings', '#2c6fbb', NULL),
-    (1, 'Social', '#f4c542', NULL),
-    (1, 'Travel', '#3a9a5b', NULL);
-DELETE FROM fields;
-DELETE FROM occurrences;
-DELETE FROM events;
-SQL
-
 install -d -m 700 /var/lib/php-calendar-demo
-for db in phpc_release phpc_dev; do
-    mariadb-dump --single-transaction --skip-dump-date "$db" > "/var/lib/php-calendar-demo/$db.sql"
-done
+mariadb-dump --single-transaction --skip-dump-date phpc_release > /var/lib/php-calendar-demo/phpc_release.sql
 ls -l /var/lib/php-calendar-demo

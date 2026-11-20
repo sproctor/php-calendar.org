@@ -1,7 +1,9 @@
 <?php
-// Adds sample events, dated around today, to a freshly reset PHP-Calendar demo database.
-// Usage: php seed-php-calendar-demo.php release|dev
-// Reads the database passwords from /root/php-calendar-demo.env.
+// Adds sample events, dated around today, to a freshly reset PHP-Calendar demo database. The dev
+// database starts empty (the reset builds it with the migrations), so for dev this first adds the
+// calendar, the admin and demo accounts, and the categories.
+// Usage: php seed.php release|dev
+// Reads the database and admin passwords from /root/php-calendar-demo.env.
 
 $which = $argv[1] ?? '';
 if (!in_array($which, ['release', 'dev'], true)) {
@@ -17,6 +19,18 @@ $db = new PDO(
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
 );
 $db->exec("SET time_zone = '+00:00'");
+
+if ($which === 'dev') {
+    $db->exec("INSERT INTO calendars (cid, title, slug, subject_max, events_max, timezone, anon_permission)
+        VALUES (1, 'PHP-Calendar Demo', 'php-calendar-demo', 50, 8, 'America/New_York', 1)");
+    $user = $db->prepare('INSERT INTO users (uid, username, hash, is_admin, password_is_editable, timezone, locale, is_disabled)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0)');
+    $user->execute([1, 'admin', password_hash($secrets['DEV_ADMIN_PASS'], PASSWORD_BCRYPT), 1, 1, 'America/New_York', 'en']);
+    $user->execute([2, 'demo', password_hash('demo', PASSWORD_BCRYPT), 0, 0, 'America/New_York', null]);
+    $db->exec('INSERT INTO user_permissions (cid, uid, `read`, `create`, `update`, `moderate`, `admin`) VALUES (1, 2, 1, 1, 1, 1, 1)');
+    $db->exec("INSERT INTO categories (cid, name, color) VALUES
+        (1, 'Meetings', '#2c6fbb'), (1, 'Social', '#f4c542'), (1, 'Travel', '#3a9a5b')");
+}
 
 $tz = new DateTimeZone('America/New_York');
 $utc = new DateTimeZone('UTC');
